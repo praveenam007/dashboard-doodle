@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Query
-from .queries import get_monthly_growth
 from dotenv import load_dotenv
 load_dotenv()
+
+from fastapi import FastAPI, Query
+from .queries import get_monthly_growth
+
 
 from fastapi.middleware.cors import CORSMiddleware
 
