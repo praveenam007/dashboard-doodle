@@ -32,7 +32,50 @@ function KpiCards({ data }) {
       </div>
     </div>
   );
+}import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+
+interface KPICardProps {
+  title: string;
+  value: string;
+  subtitle?: string;
+  growth?: number;
+  icon?: React.ReactNode;
 }
+
+export function KPICard({ title, value, subtitle, growth, icon }: KPICardProps) {
+  const isPositive = growth !== undefined && growth > 0;
+  const isNegative = growth !== undefined && growth < 0;
+  const isNeutral = growth === undefined || growth === 0;
+
+  return (
+    <div className="glass-card rounded-xl p-5 kpi-glow transition-all duration-300 hover:shadow-md">
+      <div className="flex items-start justify-between mb-3">
+        <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+        {icon && <div className="text-primary opacity-60">{icon}</div>}
+      </div>
+      <p className="text-3xl font-bold tracking-tight text-foreground font-mono">{value}</p>
+      <div className="flex items-center gap-2 mt-2">
+        {growth !== undefined && (
+          <span
+            className={`inline-flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full ${
+              isPositive
+                ? "text-chart-positive bg-chart-positive/10"
+                : isNegative
+                ? "text-chart-negative bg-chart-negative/10"
+                : "text-muted-foreground bg-muted"
+            }`}
+          >
+            {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : isNegative ? <TrendingDown className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
+            {isPositive ? "+" : ""}
+            {growth.toFixed(1)}%
+          </span>
+        )}
+        {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
+      </div>
+    </div>
+  );
+}
+
 
 const cardStyle = {
   padding: "16px",
