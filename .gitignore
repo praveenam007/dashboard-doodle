@@ -57,6 +57,7 @@ Thumbs.db
 # =====================
 *.sqlite
 *.db
+analytics.sql
 
 # =====================
 # Python
