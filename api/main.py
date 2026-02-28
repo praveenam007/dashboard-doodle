@@ -1,6 +1,4 @@
-from dotenv import load_dotenv
-load_dotenv()
-
+import os
 from fastapi import FastAPI, Query
 from .queries import get_monthly_growth, get_kpi_metrics, get_available_months, get_revenue_trend, get_growth_by_dimension, get_detailed_breakdown, get_available_segments, get_available_dimension_values
 
@@ -9,9 +7,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Sales Analytics API")
 
+origins = os.getenv("CORS_ORIGINS", "").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
