@@ -43,14 +43,42 @@ This ensures the app listens on all interfaces and uses the platform's PORT envi
 
 ## Frontend Setup
 
-See [frontend/README.md](frontend/README.md) for frontend setup instructions.
+### Environment Variables
+
+Create a `.env` file in the `frontend/` directory:
+
+```bash
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+For production:
+```bash
+VITE_API_URL=https://your-backend-api.railway.app
+```
+
+### Installation
+
+```bash
+cd frontend
+npm install
+```
+
+### Running Locally
+
+```bash
+npm run dev
+```
 
 ## Deployment
 
-### Backend
+### Backend (Railway/Render)
 - Ensure `DATABASE_URL` environment variable is set
 - Ensure `CORS_ORIGINS` environment variable includes your frontend domain
 - The Procfile will automatically start the server on the correct port
 
-### Frontend
-- Set the backend API URL in your frontend environment configuration
+### Frontend (Vercel)
+- **Framework Preset**: Vite
+- **Root Directory**: `frontend`
+- **Environment Variable**: `VITE_API_URL=https://your-backend-api-url.com`
+- Build Command: `npm run build`
+- Output Directory: `dist`

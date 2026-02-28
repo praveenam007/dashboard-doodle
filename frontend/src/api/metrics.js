@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const fetchGrowthMetrics = async ({ groupBy, startMonth, endMonth }) => {
   const params = new URLSearchParams({
@@ -8,7 +8,7 @@ export const fetchGrowthMetrics = async ({ groupBy, startMonth, endMonth }) => {
   });
 
   const response = await fetch(
-    `${API_BASE}/metrics/growth?${params.toString()}`
+    `${API_URL}/metrics/growth?${params.toString()}`
   );
 
   if (!response.ok) {
@@ -30,7 +30,7 @@ export const fetchKPIMetrics = async (currentStartDate, currentEndDate, compareS
   }
 
   const response = await fetch(
-    `${API_BASE}/metrics/kpi?${params.toString()}`
+    `${API_URL}/metrics/kpi?${params.toString()}`
   );
 
   if (!response.ok) {
@@ -41,7 +41,7 @@ export const fetchKPIMetrics = async (currentStartDate, currentEndDate, compareS
 };
 
 export const fetchAvailableMonths = async () => {
-  const response = await fetch(`${API_BASE}/metrics/available-months`);
+  const response = await fetch(`${API_URL}/metrics/available-months`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch available months");
@@ -52,7 +52,7 @@ export const fetchAvailableMonths = async () => {
 };
 
 export const fetchAvailableSegments = async () => {
-  const response = await fetch(`${API_BASE}/metrics/available-segments`);
+  const response = await fetch(`${API_URL}/metrics/available-segments`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch available segments");
@@ -67,7 +67,7 @@ export const fetchAvailableDimensionValues = async (dimension) => {
     dimension: dimension
   });
   
-  const response = await fetch(`${API_BASE}/metrics/available-dimension-values?${params.toString()}`);
+  const response = await fetch(`${API_URL}/metrics/available-dimension-values?${params.toString()}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch available dimension values");
@@ -101,7 +101,7 @@ export const fetchRevenueTrend = async (startDate = null, endDate = null, dimens
   }
 
   const response = await fetch(
-    `${API_BASE}/metrics/revenue-trend?${params.toString()}`
+    `${API_URL}/metrics/revenue-trend?${params.toString()}`
   );
 
   if (!response.ok) {
@@ -126,7 +126,7 @@ export const fetchGrowthByDimension = async (dimension, currentStartDate, curren
   }
 
   const response = await fetch(
-    `${API_BASE}/metrics/growth-by-dimension?${params.toString()}`
+    `${API_URL}/metrics/growth-by-dimension?${params.toString()}`
   );
 
   if (!response.ok) {
@@ -151,7 +151,7 @@ export const fetchDetailedBreakdown = async (dimension, currentStartDate, curren
   }
 
   const response = await fetch(
-    `${API_BASE}/metrics/detailed-breakdown?${params.toString()}`
+    `${API_URL}/metrics/detailed-breakdown?${params.toString()}`
   );
 
   if (!response.ok) {
