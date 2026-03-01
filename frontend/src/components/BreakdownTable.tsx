@@ -386,9 +386,10 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
       <div style={{ 
         overflowX: 'auto', 
         overflowY: 'auto', 
+        minHeight: '400px',
         maxHeight: '600px' 
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table style={{ width: '100%', minWidth: '1600px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#f9fafb' }}>
               <th 
@@ -403,7 +404,12 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  left: 0,
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 3
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                   {formatDimensionName(dimension)}
@@ -422,7 +428,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Rev ({currentLabel})
@@ -441,7 +451,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Rev ({compareLabel})
@@ -460,7 +474,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Rev Growth
@@ -479,7 +497,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Qty ({currentLabel})
@@ -498,7 +520,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Qty ({compareLabel})
@@ -517,7 +543,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Qty Growth
@@ -536,7 +566,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Gross Revenue (₹)
@@ -555,7 +589,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Returns (₹)
@@ -574,7 +612,11 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   letterSpacing: '0.05em',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f9fafb',
+                  zIndex: 2
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   Return Impact %
@@ -594,7 +636,16 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <td style={{ padding: '0.875rem 1rem', fontWeight: 500, fontSize: '0.875rem', color: '#111827' }}>
+                <td style={{ 
+                  padding: '0.875rem 1rem', 
+                  fontWeight: 500, 
+                  fontSize: '0.875rem', 
+                  color: '#111827',
+                  position: 'sticky',
+                  left: 0,
+                  backgroundColor: 'inherit',
+                  zIndex: 1
+                }}>
                   {row.dimension_value}
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'right', fontSize: '0.875rem', color: '#111827', fontFamily: 'monospace' }}>

@@ -27,6 +27,7 @@ function App() {
   const [revenueTrendData, setRevenueTrendData] = useState<any[]>([]);
   const [growthData, setGrowthData] = useState<any[]>([]);
   const [breakdownData, setBreakdownData] = useState<any[]>([]);
+  const [categoryBreakdownData, setCategoryBreakdownData] = useState<any[]>([]);
   const [availableDimensionValues, setAvailableDimensionValues] = useState<string[]>([]);
   const [selectedDimensionValues, setSelectedDimensionValues] = useState<string[]>([]);
 
@@ -85,6 +86,13 @@ function App() {
       fetchDetailedBreakdown(dimension, currentStartDate, currentEndDate, compareStartDate, compareEndDate, selectedDimensionValues).then(setBreakdownData);
     }
   }, [dimension, currentStartDate, currentEndDate, compareStartDate, compareEndDate, selectedDimensionValues]);
+
+  // Fetch category breakdown data for waterfall chart (independent of dimension selector)
+  useEffect(() => {
+    if (currentStartDate && currentEndDate && compareStartDate && compareEndDate) {
+      fetchDetailedBreakdown('category', currentStartDate, currentEndDate, compareStartDate, compareEndDate, []).then(setCategoryBreakdownData);
+    }
+  }, [currentStartDate, currentEndDate, compareStartDate, compareEndDate]);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', padding: '1rem' }}>
@@ -149,8 +157,8 @@ function App() {
         {/* Revenue Comparison Chart */}
         <div style={{ marginTop: '1.5rem' }}>
           <RevenueComparisonChart 
-            data={breakdownData}
-            dimension={dimension}
+            data={categoryBreakdownData}
+            dimension="category"
             currentMonth={currentStartDate}
             compareMonth={compareStartDate}
           />
