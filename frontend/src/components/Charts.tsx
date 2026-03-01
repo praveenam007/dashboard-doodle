@@ -43,6 +43,24 @@ function formatRevenue(value: number): string {
   return `₹${value.toFixed(0)}`;
 }
 
+function formatDimensionName(dimension: string): string {
+  const dimensionNames: Record<string, string> = {
+    zone: "Zone",
+    state: "State",
+    channel: "Channel",
+    category: "Category",
+    sub_category: "Sub Category",
+    segment: "Segment",
+    city: "City",
+    master_sku: "Master SKU",
+    customer: "Customer",
+    sales_leader: "Sales Leader",
+    rsm: "RSM",
+    asm: "ASM"
+  };
+  return dimensionNames[dimension] || dimension;
+}
+
 function formatDateLabel(dateStr: string, granularity: string): string {
   if (granularity === "daily") {
     // Format as "Jan 3" for daily
@@ -177,7 +195,7 @@ export function Charts({ revenueTrendData, growthData, dimension, granularity, o
             textTransform: 'uppercase', 
             letterSpacing: '0.05em'
           }}>
-            {hasDimension ? `Top 5 ${dimension} Revenue Trend` : 'Revenue Trend'}
+            {hasDimension ? `Top 5 ${formatDimensionName(dimension)} Revenue Trend` : 'Revenue Trend'}
           </h3>
           <div style={{ position: 'relative' }}>
             <button
@@ -313,7 +331,7 @@ export function Charts({ revenueTrendData, growthData, dimension, granularity, o
           textTransform: 'uppercase', 
           letterSpacing: '0.05em'
         }}>
-          Top 5 Growth % by {dimension}
+          Top 5 Growth % by {formatDimensionName(dimension)}
         </h3>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={growthChartData} layout="vertical" margin={{ left: 10, right: 20 }}>

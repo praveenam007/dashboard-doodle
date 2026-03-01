@@ -350,7 +350,14 @@ def get_detailed_breakdown(dimension: str, current_start_date: str, current_end_
         SELECT
             {dim_col} AS dimension_value,
             SUM(revenue) AS revenue,
-            SUM(quantity) AS quantity
+            SUM(quantity) AS quantity,
+            SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) AS gross_revenue,
+            ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) AS returns,
+            CASE 
+                WHEN SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) > 0 
+                THEN (ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) / SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END)) * 100
+                ELSE 0
+            END AS return_impact_pct
         FROM sales.fact_sales
         WHERE posting_date BETWEEN :current_start_date AND :current_end_date{dimension_filter}
         GROUP BY {dim_col}
@@ -359,7 +366,14 @@ def get_detailed_breakdown(dimension: str, current_start_date: str, current_end_
         SELECT
             {dim_col} AS dimension_value,
             SUM(revenue) AS revenue,
-            SUM(quantity) AS quantity
+            SUM(quantity) AS quantity,
+            SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) AS gross_revenue,
+            ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) AS returns,
+            CASE 
+                WHEN SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) > 0 
+                THEN (ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) / SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END)) * 100
+                ELSE 0
+            END AS return_impact_pct
         FROM sales.fact_sales
         WHERE posting_date BETWEEN :compare_start_date AND :compare_end_date{dimension_filter}
         GROUP BY {dim_col}
@@ -377,7 +391,13 @@ def get_detailed_breakdown(dimension: str, current_start_date: str, current_end_
         CASE
             WHEN COALESCE(cm.quantity, 0) = 0 THEN NULL
             ELSE ((COALESCE(c.quantity, 0) - COALESCE(cm.quantity, 0)) / cm.quantity) * 100
-        END AS quantity_growth_pct
+        END AS quantity_growth_pct,
+        COALESCE(c.gross_revenue, 0) AS current_gross_revenue,
+        COALESCE(cm.gross_revenue, 0) AS compare_gross_revenue,
+        COALESCE(c.returns, 0) AS current_returns,
+        COALESCE(cm.returns, 0) AS compare_returns,
+        COALESCE(c.return_impact_pct, 0) AS current_return_impact_pct,
+        COALESCE(cm.return_impact_pct, 0) AS compare_return_impact_pct
     FROM current_data c
     FULL OUTER JOIN compare_data cm ON c.dimension_value = cm.dimension_value
     WHERE COALESCE(c.dimension_value, cm.dimension_value) IS NOT NULL

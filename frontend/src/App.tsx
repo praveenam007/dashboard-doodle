@@ -23,7 +23,7 @@ function App() {
   const [compareStartDate, setCompareStartDate] = useState<string>("");
   const [compareEndDate, setCompareEndDate] = useState<string>("");
   const [dimension, setDimension] = useState<string>("category");
-  const [granularity, setGranularity] = useState<string>("monthly");
+  const [granularity, setGranularity] = useState<string>("daily");
   const [revenueTrendData, setRevenueTrendData] = useState<any[]>([]);
   const [growthData, setGrowthData] = useState<any[]>([]);
   const [breakdownData, setBreakdownData] = useState<any[]>([]);

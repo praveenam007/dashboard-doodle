@@ -1,12 +1,14 @@
 import {
-  BarChart,
+  ComposedChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
+  Cell,
+  ReferenceLine,
 } from "recharts";
 
 interface BreakdownData {
@@ -26,6 +28,17 @@ interface RevenueComparisonChartProps {
   compareMonth: string;
 }
 
+interface WaterfallDataPoint {
+  name: string;
+  value: number;
+  base: number;
+  top: number;
+  connector: number;
+  isStart: boolean;
+  isEnd: boolean;
+  isPositive: boolean;
+}
+
 function formatRevenue(value: number): string {
   if (value >= 100000) {
     return `₹${(value / 100000).toFixed(1)}L`;
@@ -42,17 +55,88 @@ function formatMonthLabel(yearMonth: string): string {
   return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
+function formatDimensionName(dimension: string): string {
+  const dimensionNames: Record<string, string> = {
+    zone: "Zone",
+    state: "State",
+    channel: "Channel",
+    category: "Category",
+    sub_category: "Sub Category",
+    segment: "Segment",
+    city: "City",
+    master_sku: "Master SKU",
+    customer: "Customer",
+    sales_leader: "Sales Leader",
+    rsm: "RSM",
+    asm: "ASM"
+  };
+  return dimensionNames[dimension] || dimension;
+}
+
 export function RevenueComparisonChart({ data, dimension, currentMonth, compareMonth }: RevenueComparisonChartProps) {
   // Show loading skeleton while data is being fetched
   if (!data || data.length === 0) {
     return <RevenueComparisonLoadingSkeleton />;
   }
 
-  const chartData = data.map((d) => ({
-    name: d.dimension_value,
-    previous: d.compare_revenue,
-    current: d.current_revenue,
-  }));
+  // Calculate waterfall data
+  const previousTotal = data.reduce((sum, d) => sum + d.compare_revenue, 0);
+  const currentTotal = data.reduce((sum, d) => sum + d.current_revenue, 0);
+
+  // Sort categories by absolute contribution (largest impact first)
+  const sortedData = [...data].sort((a, b) => {
+    const deltaA = Math.abs(a.current_revenue - a.compare_revenue);
+    const deltaB = Math.abs(b.current_revenue - b.compare_revenue);
+    return deltaB - deltaA;
+  });
+
+  const waterfallData: WaterfallDataPoint[] = [];
+  let runningTotal = previousTotal;
+
+  // Start bar
+  waterfallData.push({
+    name: formatMonthLabel(compareMonth),
+    value: previousTotal,
+    base: 0,
+    top: previousTotal,
+    connector: previousTotal,
+    isStart: true,
+    isEnd: false,
+    isPositive: true,
+  });
+
+  // Category contributions
+  sortedData.forEach((item) => {
+    const delta = item.current_revenue - item.compare_revenue;
+    const isPositive = delta >= 0;
+    const base = isPositive ? runningTotal : runningTotal - Math.abs(delta);
+    const top = isPositive ? runningTotal + Math.abs(delta) : runningTotal;
+
+    waterfallData.push({
+      name: item.dimension_value,
+      value: Math.abs(delta),
+      base: base,
+      top: top,
+      connector: runningTotal,
+      isStart: false,
+      isEnd: false,
+      isPositive,
+    });
+
+    runningTotal += delta;
+  });
+
+  // End bar
+  waterfallData.push({
+    name: formatMonthLabel(currentMonth),
+    value: currentTotal,
+    base: 0,
+    top: currentTotal,
+    connector: currentTotal,
+    isStart: false,
+    isEnd: true,
+    isPositive: true,
+  });
 
   const currentLabel = formatMonthLabel(currentMonth);
   const compareLabel = formatMonthLabel(compareMonth);
@@ -73,22 +157,35 @@ export function RevenueComparisonChart({ data, dimension, currentMonth, compareM
         textTransform: 'uppercase', 
         letterSpacing: '0.05em'
       }}>
-        Revenue Comparison by {dimension}
+        Category Contribution ({compareLabel} → {currentLabel})
       </h3>
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+      <ResponsiveContainer width="100%" height={400}>
+        <ComposedChart data={waterfallData}>
+          <defs>
+            <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity={0.8}/>
+              <stop offset="100%" stopColor="#10b981" stopOpacity={1}/>
+            </linearGradient>
+            <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ef4444" stopOpacity={1}/>
+              <stop offset="100%" stopColor="#ef4444" stopOpacity={0.8}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
           <XAxis 
             dataKey="name" 
             tick={{ fontSize: 11, fill: "#6b7280" }} 
             tickLine={false} 
-            axisLine={false}
+            axisLine={{ stroke: "#e5e7eb" }}
+            angle={-15}
+            textAnchor="end"
+            height={60}
           />
           <YAxis 
             tick={{ fontSize: 10, fill: "#6b7280" }} 
             tickFormatter={(v) => formatRevenue(v)} 
             tickLine={false} 
-            axisLine={false}
+            axisLine={{ stroke: "#e5e7eb" }}
           />
           <Tooltip
             contentStyle={{
@@ -97,30 +194,97 @@ export function RevenueComparisonChart({ data, dimension, currentMonth, compareM
               borderRadius: "8px",
               fontSize: "12px",
             }}
-            formatter={(value: number, name: string) => [
-              formatRevenue(value), 
-              name === "previous" ? "Previous Period" : "Current Period"
-            ]}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              
+              const data = payload[0].payload as WaterfallDataPoint;
+              
+              if (data.isStart) {
+                return (
+                  <div style={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                  }}>
+                    <div style={{ fontWeight: 600, marginBottom: "4px" }}>Starting Revenue</div>
+                    <div style={{ color: "#6b7280" }}>{formatRevenue(data.value)}</div>
+                  </div>
+                );
+              }
+              
+              if (data.isEnd) {
+                return (
+                  <div style={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                  }}>
+                    <div style={{ fontWeight: 600, marginBottom: "4px" }}>Ending Revenue</div>
+                    <div style={{ color: "#6b7280" }}>{formatRevenue(data.value)}</div>
+                  </div>
+                );
+              }
+              
+              return (
+                <div style={{
+                  backgroundColor: "white",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  padding: "8px 12px",
+                  fontSize: "12px",
+                }}>
+                  <div style={{ fontWeight: 600, marginBottom: "4px" }}>{data.name}</div>
+                  <div style={{ 
+                    color: data.isPositive ? "#059669" : "#dc2626",
+                    fontSize: "14px",
+                    fontWeight: 600
+                  }}>
+                    {data.isPositive ? "▲ +" : "▼ "}{formatRevenue(data.value)}
+                  </div>
+                  <div style={{ color: "#9ca3af", fontSize: "11px", marginTop: "4px" }}>
+                    From {formatRevenue(data.base)} to {formatRevenue(data.top)}
+                  </div>
+                </div>
+              );
+            }}
           />
-          <Legend 
-            wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
-            iconType="square"
-          />
+          {/* Invisible base bars for floating effect */}
+          <Bar dataKey="base" stackId="a" fill="transparent" />
+          {/* Visible floating bars */}
           <Bar 
-            dataKey="previous" 
-            name="Previous Period" 
-            fill="#d1d5db" 
-            radius={[4, 4, 0, 0]} 
-            maxBarSize={40}
+            dataKey="value" 
+            stackId="a" 
+            radius={[6, 6, 6, 6]} 
+            maxBarSize={60}
+            stroke="#fff"
+            strokeWidth={2}
+          >
+            {waterfallData.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={
+                  entry.isStart ? "#64748b" :
+                  entry.isEnd ? "#0d9488" :
+                  entry.isPositive ? "url(#positiveGradient)" : "url(#negativeGradient)"
+                } 
+              />
+            ))}
+          </Bar>
+          {/* Connector line showing the flow */}
+          <Line 
+            type="stepAfter" 
+            dataKey="connector" 
+            stroke="#94a3b8" 
+            strokeWidth={2}
+            strokeDasharray="5 5"
+            dot={false}
+            activeDot={false}
           />
-          <Bar 
-            dataKey="current" 
-            name="Current Period" 
-            fill="#0d9488" 
-            radius={[4, 4, 0, 0]} 
-            maxBarSize={40}
-          />
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

@@ -9,6 +9,12 @@ interface BreakdownData {
   current_quantity: number;
   compare_quantity: number;
   quantity_growth_pct: number;
+  current_gross_revenue: number;
+  compare_gross_revenue: number;
+  current_returns: number;
+  compare_returns: number;
+  current_return_impact_pct: number;
+  compare_return_impact_pct: number;
 }
 
 interface BreakdownTableProps {
@@ -42,6 +48,24 @@ function formatMonthLabel(yearMonth: string): string {
   const [year, month] = yearMonth.split("-");
   const date = new Date(parseInt(year), parseInt(month) - 1);
   return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+function formatDimensionName(dimension: string): string {
+  const dimensionNames: Record<string, string> = {
+    zone: "Zone",
+    state: "State",
+    channel: "Channel",
+    category: "Category",
+    sub_category: "Sub Category",
+    segment: "Segment",
+    city: "City",
+    master_sku: "Master SKU",
+    customer: "Customer",
+    sales_leader: "Sales Leader",
+    rsm: "RSM",
+    asm: "ASM"
+  };
+  return dimensionNames[dimension] || dimension;
 }
 
 function GrowthBadge({ value }: { value: number | null }) {
@@ -80,7 +104,7 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
   const compareLabel = formatMonthLabel(compareMonth);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [sortColumn, setSortColumn] = useState<'name' | 'current_revenue' | 'compare_revenue' | 'revenue_growth' | 'current_quantity' | 'compare_quantity' | 'quantity_growth'>('revenue_growth');
+  const [sortColumn, setSortColumn] = useState<'name' | 'current_revenue' | 'compare_revenue' | 'revenue_growth' | 'current_quantity' | 'compare_quantity' | 'quantity_growth' | 'current_gross_revenue' | 'current_returns' | 'current_return_impact_pct'>('revenue_growth');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   // Close dropdown when clicking outside
@@ -163,6 +187,18 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
         aValue = a.quantity_growth_pct ?? -Infinity;
         bValue = b.quantity_growth_pct ?? -Infinity;
         break;
+      case 'current_gross_revenue':
+        aValue = a.current_gross_revenue;
+        bValue = b.current_gross_revenue;
+        break;
+      case 'current_returns':
+        aValue = a.current_returns;
+        bValue = b.current_returns;
+        break;
+      case 'current_return_impact_pct':
+        aValue = a.current_return_impact_pct;
+        bValue = b.current_return_impact_pct;
+        break;
       default:
         return 0;
     }
@@ -196,7 +232,7 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
           margin: 0,
           marginBottom: '0.75rem'
         }}>
-          Detailed Breakdown by {dimension}
+          Detailed Breakdown by {formatDimensionName(dimension)}
         </h3>
         
         {/* Dimension Filter Multi-Select Dropdown */}
@@ -220,7 +256,7 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdfa'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
           >
-            <span>Filter {dimension}</span>
+            <span>Filter {formatDimensionName(dimension)}</span>
             <ChevronDown style={{ width: '14px', height: '14px' }} />
           </button>
 
@@ -368,7 +404,7 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   userSelect: 'none'
                 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  {dimension}
+                  {formatDimensionName(dimension)}
                   <SortIcon column="name" />
                 </div>
               </th>
@@ -486,6 +522,63 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   <SortIcon column="quantity_growth" />
                 </div>
               </th>
+              <th 
+                onClick={() => handleSort('current_gross_revenue')}
+                style={{ 
+                  padding: '0.75rem 1rem', 
+                  textAlign: 'right', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 600, 
+                  color: '#6b7280', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.05em',
+                  borderBottom: '1px solid #e5e7eb',
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                  Gross Revenue (₹)
+                  <SortIcon column="current_gross_revenue" />
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('current_returns')}
+                style={{ 
+                  padding: '0.75rem 1rem', 
+                  textAlign: 'right', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 600, 
+                  color: '#6b7280', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.05em',
+                  borderBottom: '1px solid #e5e7eb',
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                  Returns (₹)
+                  <SortIcon column="current_returns" />
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('current_return_impact_pct')}
+                style={{ 
+                  padding: '0.75rem 1rem', 
+                  textAlign: 'right', 
+                  fontSize: '0.75rem', 
+                  fontWeight: 600, 
+                  color: '#6b7280', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.05em',
+                  borderBottom: '1px solid #e5e7eb',
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                  Return Impact %
+                  <SortIcon column="current_return_impact_pct" />
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -519,6 +612,15 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'right' }}>
                   <GrowthBadge value={row.quantity_growth_pct} />
+                </td>
+                <td style={{ padding: '0.875rem 1rem', textAlign: 'right', fontSize: '0.875rem', color: '#111827', fontFamily: 'monospace' }}>
+                  {formatRevenue(row.current_gross_revenue)}
+                </td>
+                <td style={{ padding: '0.875rem 1rem', textAlign: 'right', fontSize: '0.875rem', color: '#111827', fontFamily: 'monospace' }}>
+                  {formatRevenue(row.current_returns)}
+                </td>
+                <td style={{ padding: '0.875rem 1rem', textAlign: 'right', fontSize: '0.875rem', color: '#111827', fontFamily: 'monospace' }}>
+                  {row.current_return_impact_pct.toFixed(2)}%
                 </td>
               </tr>
             ))}

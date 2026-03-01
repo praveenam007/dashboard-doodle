@@ -12,6 +12,7 @@ const HIERARCHIES = [
   { value: "state", label: "State" },
   { value: "channel", label: "Channel" },
   { value: "category", label: "Category" },
+  { value: "sub_category", label: "Sub Category" },
   { value: "segment", label: "Segment" },
 ];
 
