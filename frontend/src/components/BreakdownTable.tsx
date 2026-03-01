@@ -28,19 +28,21 @@ interface BreakdownTableProps {
 }
 
 function formatRevenue(value: number): string {
-  if (value >= 100000) {
-    return `₹${(value / 100000).toFixed(2)} L`;
-  } else if (value >= 1000) {
-    return `₹${(value / 1000).toFixed(1)} K`;
+  const safeValue = value ?? 0;
+  if (safeValue >= 100000) {
+    return `₹${(safeValue / 100000).toFixed(2)} L`;
+  } else if (safeValue >= 1000) {
+    return `₹${(safeValue / 1000).toFixed(1)} K`;
   }
-  return `₹${value.toFixed(0)}`;
+  return `₹${safeValue.toFixed(0)}`;
 }
 
 function formatNumber(num: number): string {
-  if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)} K`;
+  const safeNum = num ?? 0;
+  if (safeNum >= 1000) {
+    return `${(safeNum / 1000).toFixed(1)} K`;
   }
-  return num.toFixed(0);
+  return safeNum.toFixed(0);
 }
 
 function formatMonthLabel(yearMonth: string): string {
@@ -620,7 +622,7 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
                   {formatRevenue(row.current_returns)}
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'right', fontSize: '0.875rem', color: '#111827', fontFamily: 'monospace' }}>
-                  {row.current_return_impact_pct.toFixed(2)}%
+                  {(row.current_return_impact_pct ?? 0).toFixed(2)}%
                 </td>
               </tr>
             ))}
