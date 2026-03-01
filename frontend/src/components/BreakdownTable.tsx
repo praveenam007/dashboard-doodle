@@ -71,6 +71,11 @@ function GrowthBadge({ value }: { value: number | null }) {
 }
 
 export function BreakdownTable({ data, dimension, currentMonth, compareMonth, availableDimensionValues, selectedDimensionValues, onDimensionValuesChange }: BreakdownTableProps) {
+  // Show loading skeleton while data is being fetched
+  if (!data || data.length === 0) {
+    return <BreakdownTableLoadingSkeleton />;
+  }
+
   const currentLabel = formatMonthLabel(currentMonth);
   const compareLabel = formatMonthLabel(compareMonth);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -520,6 +525,91 @@ export function BreakdownTable({ data, dimension, currentMonth, compareMonth, av
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function BreakdownTableLoadingSkeleton() {
+  return (
+    <div style={{ 
+      backgroundColor: 'white', 
+      borderRadius: '0.75rem', 
+      padding: '1.25rem', 
+      boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+      border: '1px solid #e5e7eb'
+    }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '1.25rem' 
+      }}>
+        <div style={{ 
+          height: '1rem', 
+          backgroundColor: '#e5e7eb', 
+          borderRadius: '0.25rem', 
+          width: '30%',
+          animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+        }} />
+        <div style={{ 
+          height: '2rem', 
+          backgroundColor: '#e5e7eb', 
+          borderRadius: '0.375rem', 
+          width: '150px',
+          animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+        }} />
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <div style={{ minWidth: '800px' }}>
+          {/* Table header skeleton */}
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: '2fr repeat(6, 1fr)',
+            gap: '1rem',
+            padding: '0.75rem 1rem',
+            borderBottom: '2px solid #e5e7eb',
+            marginBottom: '0.5rem'
+          }}>
+            {Array.from({ length: 7 }).map((_, index) => (
+              <div key={index} style={{ 
+                height: '0.75rem', 
+                backgroundColor: '#e5e7eb', 
+                borderRadius: '0.25rem',
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              }} />
+            ))}
+          </div>
+          {/* Table rows skeleton */}
+          {Array.from({ length: 5 }).map((_, rowIndex) => (
+            <div key={rowIndex} style={{ 
+              display: 'grid',
+              gridTemplateColumns: '2fr repeat(6, 1fr)',
+              gap: '1rem',
+              padding: '0.875rem 1rem',
+              borderBottom: '1px solid #f3f4f6'
+            }}>
+              {Array.from({ length: 7 }).map((_, colIndex) => (
+                <div key={colIndex} style={{ 
+                  height: colIndex === 0 ? '1rem' : '0.875rem', 
+                  backgroundColor: '#f3f4f6', 
+                  borderRadius: '0.25rem',
+                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                }} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   );
 }

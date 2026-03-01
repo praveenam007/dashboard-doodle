@@ -43,6 +43,11 @@ function formatMonthLabel(yearMonth: string): string {
 }
 
 export function RevenueComparisonChart({ data, dimension, currentMonth, compareMonth }: RevenueComparisonChartProps) {
+  // Show loading skeleton while data is being fetched
+  if (!data || data.length === 0) {
+    return <RevenueComparisonLoadingSkeleton />;
+  }
+
   const chartData = data.map((d) => ({
     name: d.dimension_value,
     previous: d.compare_revenue,
@@ -117,6 +122,43 @@ export function RevenueComparisonChart({ data, dimension, currentMonth, compareM
           />
         </BarChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+function RevenueComparisonLoadingSkeleton() {
+  return (
+    <div style={{ 
+      backgroundColor: 'white', 
+      borderRadius: '0.75rem', 
+      padding: '1.25rem', 
+      boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+      border: '1px solid #e5e7eb'
+    }}>
+      <div style={{ 
+        height: '1rem', 
+        backgroundColor: '#e5e7eb', 
+        borderRadius: '0.25rem', 
+        width: '40%',
+        marginBottom: '1.5rem',
+        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      }} />
+      <div style={{ 
+        height: '280px', 
+        backgroundColor: '#f3f4f6', 
+        borderRadius: '0.5rem',
+        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      }} />
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   );
 }

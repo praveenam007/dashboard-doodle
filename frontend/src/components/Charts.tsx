@@ -87,6 +87,13 @@ const CustomYAxisTick = (props: any) => {
 export function Charts({ revenueTrendData, growthData, dimension, granularity, onGranularityChange }: ChartsProps) {
   const [showGranularityDropdown, setShowGranularityDropdown] = React.useState(false);
 
+  // Show loading skeleton while data is being fetched
+  const isLoading = !revenueTrendData || revenueTrendData.length === 0 || !growthData || growthData.length === 0;
+
+  if (isLoading) {
+    return <ChartsLoadingSkeleton />;
+  }
+
   // Prepare revenue trend data
   // Check if data has dimension_value (multi-series) or not (single series)
   const hasDimension = revenueTrendData.length > 0 && revenueTrendData[0].dimension_value !== undefined;
@@ -343,6 +350,47 @@ export function Charts({ revenueTrendData, growthData, dimension, granularity, o
           </BarChart>
         </ResponsiveContainer>
       </div>
+    </div>
+  );
+}
+
+function ChartsLoadingSkeleton() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      {[1, 2].map((index) => (
+        <div key={index} style={{ 
+          backgroundColor: 'white', 
+          borderRadius: '0.75rem', 
+          padding: '1.25rem', 
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          border: '1px solid #e5e7eb'
+        }}>
+          <div style={{ 
+            height: '1rem', 
+            backgroundColor: '#e5e7eb', 
+            borderRadius: '0.25rem', 
+            width: '50%',
+            marginBottom: '1.5rem',
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }} />
+          <div style={{ 
+            height: '300px', 
+            backgroundColor: '#f3f4f6', 
+            borderRadius: '0.5rem',
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }} />
+        </div>
+      ))}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   );
 }

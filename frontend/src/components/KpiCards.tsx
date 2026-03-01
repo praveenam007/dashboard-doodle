@@ -46,17 +46,31 @@ function calculateGrowth(current: number, compare: number): number {
 }
 
 export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
-  if (!data) return null;
+  // Show loading skeleton while data is being fetched
+  if (!data) {
+    return (
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(9, 1fr)', 
+        gap: '1rem',
+        marginBottom: '1.5rem'
+      }}>
+        {Array.from({ length: 9 }).map((_, index) => (
+          <LoadingSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
 
   const revenueGrowth = data.compare_revenue 
-    ? calculateGrowth(data.current_revenue, data.compare_revenue)
+    ? calculateGrowth(data.current_revenue || 0, data.compare_revenue)
     : 0;
   
   const volumeGrowth = data.compare_quantity
-    ? calculateGrowth(data.current_quantity, data.compare_quantity)
+    ? calculateGrowth(data.current_quantity || 0, data.compare_quantity)
     : 0;
 
-  const avgRevenuePerCase = data.current_quantity > 0 ? data.current_revenue / data.current_quantity : 0;
+  const avgRevenuePerCase = (data.current_quantity || 0) > 0 ? (data.current_revenue || 0) / data.current_quantity : 0;
   const compareAvgRevenuePerCase = data.compare_quantity && data.compare_revenue && data.compare_quantity > 0 
     ? data.compare_revenue / data.compare_quantity 
     : 0;
@@ -65,15 +79,17 @@ export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
     : 0;
 
   const grossRevenueGrowth = data.compare_gross_revenue
-    ? calculateGrowth(data.current_gross_revenue, data.compare_gross_revenue)
+    ? calculateGrowth(data.current_gross_revenue || 0, data.compare_gross_revenue)
     : 0;
 
   const returnsGrowth = data.compare_returns
-    ? calculateGrowth(data.current_returns, data.compare_returns)
+    ? calculateGrowth(data.current_returns || 0, data.compare_returns)
     : 0;
 
-  const returnsImpactChange = data.compare_returns_impact_pct
-    ? data.current_returns_impact_pct - data.compare_returns_impact_pct
+  const currentReturnsImpactPct = data.current_returns_impact_pct ?? 0;
+  const compareReturnsImpactPct = data.compare_returns_impact_pct ?? 0;
+  const returnsImpactChange = compareReturnsImpactPct > 0
+    ? currentReturnsImpactPct - compareReturnsImpactPct
     : 0;
 
   // Color coding for returns impact %
@@ -92,7 +108,7 @@ export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
   const cards = [
     {
       title: "TOTAL REVENUE",
-      value: formatCurrency(data.current_revenue),
+      value: formatCurrency(data.current_revenue || 0),
       icon: <IndianRupee className="w-3 h-3" />,
       growth: revenueGrowth,
     },
@@ -107,7 +123,7 @@ export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
     },
     {
       title: "VOLUME",
-      value: formatNumber(data.current_quantity),
+      value: formatNumber(data.current_quantity || 0),
       icon: <Package className="w-3 h-3" />,
       growth: volumeGrowth,
     },
@@ -137,7 +153,7 @@ export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
     },
     {
       title: "GROSS REVENUE (₹)",
-      value: formatCurrency(data.current_gross_revenue),
+      value: formatCurrency(data.current_gross_revenue || 0),
       icon: <IndianRupee className="w-3 h-3" />,
       growth: grossRevenueGrowth,
       showInfoIcon: true,
@@ -145,7 +161,7 @@ export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
     },
     {
       title: "RETURNS (₹)",
-      value: formatCurrency(data.current_returns),
+      value: formatCurrency(data.current_returns || 0),
       icon: <TrendingDown className="w-3 h-3" />,
       growth: returnsGrowth,
       showInfoIcon: true,
@@ -154,11 +170,11 @@ export default function KpiCards({ data, compareMonth }: KpiCardsProps) {
     },
     {
       title: "RETURN IMPACT % ",
-      value: `${data.current_returns_impact_pct.toFixed(2)}%`,
-      subtitle: getReturnsImpactStatus(data.current_returns_impact_pct),
-      icon: data.current_returns_impact_pct > 10 ? <AlertTriangle className="w-3 h-3" /> : <Info className="w-3 h-3" />,
+      value: `${currentReturnsImpactPct.toFixed(2)}%`,
+      subtitle: getReturnsImpactStatus(currentReturnsImpactPct),
+      icon: currentReturnsImpactPct > 10 ? <AlertTriangle className="w-3 h-3" /> : <Info className="w-3 h-3" />,
       growth: returnsImpactChange,
-      customColor: getReturnsImpactColor(data.current_returns_impact_pct),
+      customColor: getReturnsImpactColor(currentReturnsImpactPct),
       showInfoIcon: true,
       tooltipText: "Formula: (Returns / Gross Revenue) × 100 | 0-5%: Healthy | 5-10%: Warning | >10%: Critical",
       isPercentageMetric: true,
@@ -274,6 +290,58 @@ function KPICard({ title, value, subtitle, growth, icon, compareMonth, isGrowthC
           </span>
         )}
       </div>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div style={{ 
+      backgroundColor: 'white', 
+      borderRadius: '0.375rem', 
+      padding: '0.375rem 0.5rem', 
+      boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', 
+      border: '1px solid #e5e7eb',
+      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
+        <div style={{ 
+          height: '0.55rem', 
+          backgroundColor: '#e5e7eb', 
+          borderRadius: '0.25rem', 
+          width: '60%' 
+        }} />
+        <div style={{ 
+          width: '12px', 
+          height: '12px', 
+          backgroundColor: '#e5e7eb', 
+          borderRadius: '0.25rem' 
+        }} />
+      </div>
+      <div style={{ 
+        height: '0.95rem', 
+        backgroundColor: '#e5e7eb', 
+        borderRadius: '0.25rem', 
+        width: '80%',
+        marginBottom: '0.15rem'
+      }} />
+      <div style={{ 
+        height: '0.6rem', 
+        backgroundColor: '#e5e7eb', 
+        borderRadius: '0.25rem', 
+        width: '40%',
+        marginLeft: 'auto'
+      }} />
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   );
 }
