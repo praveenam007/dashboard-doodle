@@ -29,7 +29,14 @@ def get_kpi_metrics(current_start_date: str, current_end_date: str, compare_star
             CASE 
                 WHEN COUNT(*) > 0 THEN SUM(revenue) / COUNT(*)
                 ELSE 0
-            END AS avg_revenue_per_txn
+            END AS avg_revenue_per_txn,
+            SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) AS gross_revenue,
+            ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) AS returns,
+            CASE 
+                WHEN SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) > 0 
+                THEN (ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) / SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END)) * 100
+                ELSE 0
+            END AS returns_impact_pct
         FROM sales.fact_sales
         WHERE posting_date BETWEEN :current_start_date AND :current_end_date
     ),
@@ -41,7 +48,14 @@ def get_kpi_metrics(current_start_date: str, current_end_date: str, compare_star
             CASE 
                 WHEN COUNT(*) > 0 THEN SUM(revenue) / COUNT(*)
                 ELSE 0
-            END AS avg_revenue_per_txn
+            END AS avg_revenue_per_txn,
+            SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) AS gross_revenue,
+            ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) AS returns,
+            CASE 
+                WHEN SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END) > 0 
+                THEN (ABS(SUM(CASE WHEN revenue < 0 THEN revenue ELSE 0 END)) / SUM(CASE WHEN revenue > 0 THEN revenue ELSE 0 END)) * 100
+                ELSE 0
+            END AS returns_impact_pct
         FROM sales.fact_sales
         WHERE posting_date BETWEEN :compare_start_date AND :compare_end_date
     )
@@ -50,10 +64,16 @@ def get_kpi_metrics(current_start_date: str, current_end_date: str, compare_star
         c.total_quantity AS current_quantity,
         c.total_transactions AS current_transactions,
         c.avg_revenue_per_txn AS current_avg_revenue_per_txn,
+        c.gross_revenue AS current_gross_revenue,
+        c.returns AS current_returns,
+        c.returns_impact_pct AS current_returns_impact_pct,
         cm.total_revenue AS compare_revenue,
         cm.total_quantity AS compare_quantity,
         cm.total_transactions AS compare_transactions,
-        cm.avg_revenue_per_txn AS compare_avg_revenue_per_txn
+        cm.avg_revenue_per_txn AS compare_avg_revenue_per_txn,
+        cm.gross_revenue AS compare_gross_revenue,
+        cm.returns AS compare_returns,
+        cm.returns_impact_pct AS compare_returns_impact_pct
     FROM current_metrics c
     CROSS JOIN compare_metrics cm;
     """

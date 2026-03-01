@@ -35,21 +35,13 @@ function App() {
     fetchAvailableMonths().then((months) => {
       setAvailableMonths(months);
       if (months.length > 0) {
-        // Set current period to most recent month
-        const latestMonth = months[0];
-        const [year, month] = latestMonth.split("-");
-        const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
-        setCurrentStartDate(`${latestMonth}-01`);
-        setCurrentEndDate(`${latestMonth}-${String(lastDay).padStart(2, '0')}`);
+        // Default to March 2025 as current period
+        setCurrentStartDate('2025-03-01');
+        setCurrentEndDate('2025-03-31');
         
-        // Set compare period to previous month
-        if (months.length > 1) {
-          const prevMonth = months[1];
-          const [prevYear, prevMonthNum] = prevMonth.split("-");
-          const prevLastDay = new Date(parseInt(prevYear), parseInt(prevMonthNum), 0).getDate();
-          setCompareStartDate(`${prevMonth}-01`);
-          setCompareEndDate(`${prevMonth}-${String(prevLastDay).padStart(2, '0')}`);
-        }
+        // Default to January 2025 as compare period
+        setCompareStartDate('2025-01-01');
+        setCompareEndDate('2025-01-31');
       }
     });
   }, []);
@@ -95,8 +87,8 @@ function App() {
   }, [dimension, currentStartDate, currentEndDate, compareStartDate, compareEndDate, selectedDimensionValues]);
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', padding: '2rem' }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', padding: '1rem' }}>
+      <div style={{ maxWidth: '100%', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative', zIndex: 100 }}>
           <div style={{ textAlign: 'left' }}>
